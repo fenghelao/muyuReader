@@ -9,3 +9,9 @@ dist-web/
 Thumbs.db
 .env
 .env.local
+
+# 测试书籍(勿提交:版权 + 体积)
+*.epub
+*.mobi
+*.azw3
+*.pdf
