@@ -1,4 +1,4 @@
-import type { Block, DiffLine } from './types'
+import type { Block } from './types'
 
 // M1 演示内容(将来由真实解析器产出;此处内置一段原创武侠范文 + 伪装素材池)。
 export const HISTORY = 3 // 首屏回填的历史块数
@@ -70,7 +70,7 @@ export const BLOCK_COUNT = BLOCKS.length
 export const FRAMING = '接着上面的，继续。'
 export const QUESTIONS = ['继续', '然后呢？', '嗯，接着讲', '这里再展开下', '好的，请继续', '再往下', '接着', '别停，继续']
 
-// ---- 混合排版伪装素材 ----
+// 假思考摘要(折叠一行 "Thought for Ns")
 export const THINK_POOL = [
   'Let me restate the goal, then work through it step by step.',
   "I'll check the edge cases first: empty input, retries, and ordering.",
@@ -80,54 +80,25 @@ export const THINK_POOL = [
   'Outlining the structure first, then filling in each piece.'
 ]
 
-export const CAMO_POOL = [
-  "The core idea is to keep the reducer pure, so every state transition stays replayable — that's what makes the whole flow deterministic and easy to test.",
-  "One caveat: an effect with an empty dependency array runs after the first paint, not before it, so don't rely on it to block the initial render.",
-  "I'd wrap the network layer in a thin client that centralizes auth, retries, and error normalization, so call sites never touch a raw response.",
-  "Complexity is dominated by the sort at O(n log n); the pass afterward is linear, so it won't be the bottleneck in practice.",
-  'The migration stays safe because the new column is nullable with a default, letting existing rows validate while the backfill runs in batches.'
-]
-
-export const CODE_POOL = [
-  'const debounce = (fn, ms) => {\n  let t;\n  return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), ms); };\n};',
-  'async function withRetry(fn, n = 3) {\n  for (let i = 0; i < n; i++) {\n    try { return await fn(); }\n    catch (e) { if (i === n - 1) throw e; }\n  }\n}',
-  'function chunk(arr, size) {\n  const out = [];\n  for (let i = 0; i < arr.length; i += size)\n    out.push(arr.slice(i, i + size));\n  return out;\n}'
-]
-
-export const TOOL_POOL: { name: string; res: string }[] = [
-  { name: 'Read(src/auth/session.ts)', res: 'Read 48 lines' },
-  { name: 'Grep("useAuth")', res: 'Found 6 matches across 4 files' },
-  { name: 'Bash(npm run test)', res: '✓ 128 passed in 4.2s' },
-  { name: 'Read(components/Sidebar.tsx)', res: 'Read 112 lines' },
-  { name: 'Bash(npm run build)', res: '✓ built in 3.1s' },
-  { name: 'Glob("src/**/*.ts")', res: '37 files' }
-]
-
-export const EDIT_POOL: { name: string; res: string; diff: DiffLine[] }[] = [
-  {
-    name: 'Update(components/Sidebar.tsx)',
-    res: 'Updated with 8 additions and 2 removals',
-    diff: [
-      { t: '+', text: 'const [collapsed, setCollapsed] = useState(false);' },
-      { t: '-', text: 'const collapsed = false;' }
-    ]
-  },
-  {
-    name: 'Update(src/store/auth.ts)',
-    res: 'Updated with 5 additions and 1 removal',
-    diff: [{ t: '+', text: 'set({ user, token, status: "authed" });' }]
-  },
-  {
-    name: 'Write(src/hooks/useDebounce.ts)',
-    res: 'Created 14 lines',
-    diff: [{ t: '+', text: 'export function useDebounce<T>(value: T, ms = 300) {' }]
-  },
-  {
-    name: 'Update(api/client.ts)',
-    res: 'Updated with 12 additions and 4 removals',
-    diff: [
-      { t: '+', text: 'headers.set("Authorization", `Bearer ${token}`);' },
-      { t: '-', text: '// TODO: attach auth header' }
-    ]
-  }
+// 伪装:仿 Claude Code transcript 的灰色折叠工具摘要行。
+// summary = 折叠时显示的一行灰字;detail = 展开后的细节(可省略,省略则不可展开)。
+export interface ActionItem {
+  summary: string
+  detail?: string[]
+}
+export const ACTION_POOL: ActionItem[] = [
+  { summary: 'Used 2 tools', detail: ['⏺ Read(src/auth/session.ts)', '  ⎿ Read 48 lines', '⏺ Grep("useAuth")', '  ⎿ 6 matches in 4 files'] },
+  { summary: 'Edited components/Sidebar.tsx  (+8 −2)', detail: ['+ const [collapsed, setCollapsed] = useState(false);', '- const collapsed = false;'] },
+  { summary: 'Ran npm run test — 128 passed in 4.2s', detail: ['⏺ Bash(npm run test)', '  ⎿ ✓ 128 passed, 0 failed'] },
+  { summary: 'Typechecked the renderer TypeScript', detail: ['⏺ tsc --noEmit -p tsconfig.web.json', '  ⎿ 0 errors'] },
+  { summary: 'Read package.json' },
+  { summary: 'Searched the codebase for TODO', detail: ['⏺ Grep("TODO")', '  ⎿ 12 matches across 9 files'] },
+  { summary: 'Updated api/client.ts  (+12 −4)', detail: ['+ headers.set("Authorization", `Bearer ${token}`);', '- // TODO: attach auth header'] },
+  { summary: 'Ran the build — done in 3.1s', detail: ['⏺ Bash(npm run build)', '  ⎿ ✓ built in 3.1s'] },
+  { summary: 'Explored the project structure', detail: ['⏺ Glob("src/**/*.ts")', '  ⎿ 37 files'] },
+  { summary: 'Formatted 5 files with Prettier' },
+  { summary: 'Created src/hooks/useDebounce.ts  (14 lines)', detail: ['+ export function useDebounce<T>(value: T, ms = 300) {', '+   const [v, setV] = useState(value);'] },
+  { summary: 'Ran git status', detail: ['⏺ Bash(git status)', '  ⎿ 3 files changed, 1 untracked'] },
+  { summary: 'Read 2 files, used a tool', detail: ['⏺ Read(store.ts)', '  ⎿ Read 92 lines', '⏺ Read(App.tsx)', '  ⎿ Read 41 lines'] },
+  { summary: 'Checked the diff' }
 ]

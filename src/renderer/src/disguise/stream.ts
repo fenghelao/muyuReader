@@ -7,40 +7,40 @@ function prefersReduced(): boolean {
   return typeof matchMedia !== 'undefined' && matchMedia('(prefers-reduced-motion: reduce)').matches
 }
 
-/** 渲染一个块级片段(code / tool / edited)为 DOM —— 像 Claude 一样整块弹出 */
+/**
+ * 渲染一个块级片段(action:灰色折叠工具摘要行,仿 Claude Code transcript)。
+ * 默认折叠只占一行灰字;有 detail 时点击展开,细节里 +/- 行着色。
+ */
 export function renderBlockEl(seg: BlockSegment): HTMLElement {
-  if (seg.kind === 'code') {
-    const pre = document.createElement('pre')
-    pre.className = 'code'
-    pre.textContent = seg.text
-    return pre
-  }
   const wrap = document.createElement('div')
-  wrap.className = 'tool'
-  const line = document.createElement('div')
-  line.className = 'tline'
-  const dot = document.createElement('span')
-  dot.className = 'dot'
-  dot.textContent = '⏺'
-  const nm = document.createElement('span')
-  nm.className = 'tname'
-  nm.textContent = seg.name
-  line.append(dot, nm)
-  wrap.appendChild(line)
-  const res = document.createElement('div')
-  res.className = 'tres'
-  res.textContent = '⎿ ' + seg.res
-  wrap.appendChild(res)
-  if (seg.kind === 'edited') {
+  wrap.className = 'action collapsed'
+
+  const head = document.createElement('div')
+  head.className = 'action-head'
+  const label = document.createElement('span')
+  label.className = 'action-summary'
+  label.textContent = seg.summary
+  const chev = document.createElement('span')
+  chev.className = 'action-chev'
+  chev.textContent = '›'
+  head.append(label, chev)
+  wrap.appendChild(head)
+
+  if (seg.detail && seg.detail.length) {
     const d = document.createElement('div')
-    d.className = 'diff'
-    for (const ln of seg.diff) {
+    d.className = 'action-detail'
+    for (const ln of seg.detail) {
       const r = document.createElement('div')
-      r.className = ln.t === '+' ? 'add' : 'del'
-      r.textContent = ln.t + ' ' + ln.text
+      if (ln.startsWith('+')) r.className = 'add'
+      else if (ln.startsWith('-')) r.className = 'del'
+      r.textContent = ln
       d.appendChild(r)
     }
     wrap.appendChild(d)
+    head.style.cursor = 'pointer'
+    head.addEventListener('click', () => wrap.classList.toggle('collapsed'))
+  } else {
+    chev.style.visibility = 'hidden'
   }
   return wrap
 }
@@ -48,9 +48,8 @@ export function renderBlockEl(seg: BlockSegment): HTMLElement {
 /** 一次性铺出全部片段(历史回填 / 切换排版重渲染) */
 export function buildInstant(body: HTMLElement, segs: Segment[]): void {
   for (const s of segs) {
-    if (s.kind === 'novel' || s.kind === 'prose') {
+    if (s.kind === 'novel') {
       const p = document.createElement('p')
-      if (s.kind === 'prose') p.className = 'camo'
       p.textContent = s.text
       body.appendChild(p)
     } else {
@@ -60,7 +59,7 @@ export function buildInstant(body: HTMLElement, segs: Segment[]): void {
 }
 
 /**
- * 顺序流:文本段逐字打字,块级段(tool/edited/code)整块弹出。
+ * 顺序流:正文段逐字打字,action 摘要行整块弹出。
  * 返回取消函数(组件卸载 / React StrictMode 清理时调用)。
  */
 export function streamSegments(
@@ -122,15 +121,14 @@ export function streamSegments(
       return
     }
     const s = segs[k++]
-    if (s.kind === 'novel' || s.kind === 'prose') {
+    if (s.kind === 'novel') {
       const p = document.createElement('p')
-      if (s.kind === 'prose') p.className = 'camo'
       body.appendChild(p)
       typeInto(p, s.text, next)
     } else {
       body.appendChild(renderBlockEl(s))
       onTick?.()
-      timer = setTimeout(next, reduce ? 0 : 160)
+      timer = setTimeout(next, reduce ? 0 : 140)
     }
   }
 

@@ -92,6 +92,18 @@ body {
 .msg--assistant .body .diff .del { background: rgba(201, 100, 66, .14); color: #a24e30; }
 :root[data-theme="dark"] .msg--assistant .body .diff .add { background: rgba(120, 140, 93, .22); color: #a6ba85; }
 :root[data-theme="dark"] .msg--assistant .body .diff .del { background: rgba(201, 100, 66, .22); color: #e2996f; }
+/* 伪装:仿 Claude Code 的灰色折叠工具摘要行(默认一行灰字,点 › 展开;极易跳过,不挡阅读) */
+.msg--assistant .body .action { margin: 0 0 15px; font-family: var(--font-ui); }
+.msg--assistant .body .action-head { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--text-tertiary); user-select: none; }
+.msg--assistant .body .action-summary { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.msg--assistant .body .action-chev { color: var(--text-mid); transition: transform .15s; display: inline-block; font-size: 15px; line-height: 1; }
+.msg--assistant .body .action:not(.collapsed) .action-chev { transform: rotate(90deg); }
+.msg--assistant .body .action-detail { margin: 6px 0 0 2px; font-family: var(--font-mono); font-size: 12px; line-height: 1.55; color: var(--text-tertiary); white-space: pre-wrap; }
+.msg--assistant .body .action.collapsed .action-detail { display: none; }
+.msg--assistant .body .action-detail .add { color: #5f7043; }
+.msg--assistant .body .action-detail .del { color: #a24e30; }
+:root[data-theme="dark"] .msg--assistant .body .action-detail .add { color: #a6ba85; }
+:root[data-theme="dark"] .msg--assistant .body .action-detail .del { color: #e2996f; }
 /* 思考块 */
 .think { border: 1px solid var(--border-subtle); border-radius: 10px; padding: 9px 12px; margin: 0 0 16px; }
 .think-head { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text-tertiary); cursor: pointer; user-select: none; }
