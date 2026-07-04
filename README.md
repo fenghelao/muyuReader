@@ -2,7 +2,8 @@
 
 一个界面像素级伪装成 **Claude 桌面客户端**的电子书阅读器 —— 屏幕上看着在正常用 Claude 问答,实际在读小说。
 
-> 设计蓝图见 [`docs/PROJECT_PLAN.md`](docs/PROJECT_PLAN.md)。静态交互原型见 [`prototype/index.html`](prototype/index.html)(单文件,浏览器打开即看)。
+> **接手开发先读 [`docs/DEVELOPMENT.md`](docs/DEVELOPMENT.md)** —— 当前进度(M0–M3 已完成)、架构地图、关键约定、下一步 roadmap。
+> 设计蓝图见 [`docs/PROJECT_PLAN.md`](docs/PROJECT_PLAN.md)(需求单一真源)。静态交互原型见 [`prototype/index.html`](prototype/index.html)(单文件,浏览器打开即看)。
 
 ## 技术栈
 
