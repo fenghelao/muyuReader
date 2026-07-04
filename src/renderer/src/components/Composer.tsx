@@ -47,7 +47,7 @@ export default function Composer() {
           </button>
         </div>
       </div>
-      <div className="hint">回车 = 翻到下一段 · Esc = 老板键 · 右下角可切排版/字号/亮暗 · 内容仅本地</div>
+      <div className="hint">Enter / ↓ = next · ↑ = previous · Esc = hide · settings live in the top bar · local only</div>
     </div>
   )
 }

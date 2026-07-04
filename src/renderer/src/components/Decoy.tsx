@@ -1,7 +1,6 @@
 import { useStore } from '../store'
 import { Chevron, Plus, SearchIcon, SendArrow, Sparkle } from './icons'
 
-// 老板键遮羞层:一屏干净的 Claude 空会话(M1 页面内实现;M3 升级独立 WebContentsView)
 export default function Decoy() {
   const bossOn = useStore((s) => s.bossOn)
   return (
@@ -17,7 +16,7 @@ export default function Decoy() {
         </button>
         <div className="search">
           <SearchIcon className="icon icon-sm" />
-          <input placeholder="Search chats…" />
+          <input placeholder="Search chats..." />
         </div>
         <div className="side-scroll">
           <div className="group-label">Recents</div>
@@ -32,9 +31,9 @@ export default function Decoy() {
           </div>
         </div>
         <div className="account">
-          <div className="avatar">K</div>
+          <div className="avatar">A</div>
           <div className="account-meta">
-            <span className="account-name">Kyrie Chen</span>
+            <span className="account-name">admin</span>
             <span className="account-plan">Claude Pro</span>
           </div>
         </div>
@@ -42,7 +41,7 @@ export default function Decoy() {
       <div className="decoy-main">
         <div className="decoy-hi">
           <Sparkle />
-          晚上好，Kyrie
+          Good evening, admin
         </div>
         <div className="composer">
           <textarea rows={1} placeholder="How can I help you today?" />

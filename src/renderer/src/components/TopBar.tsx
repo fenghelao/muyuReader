@@ -1,5 +1,6 @@
 import { useStore } from '../store'
-import { Chevron, Dots, Share, Star } from './icons'
+import { Chevron, Share, Star } from './icons'
+import SettingsMenu from './SettingsMenu'
 
 export default function TopBar() {
   const books = useStore((s) => s.books)
@@ -17,12 +18,10 @@ export default function TopBar() {
           <Share className="icon icon-sm" />
           Share
         </button>
-        <button className="tb-btn tb-ico" title="收藏">
+        <button className="tb-btn tb-ico" title="Star">
           <Star className="icon icon-sm" />
         </button>
-        <button className="tb-btn tb-ico" title="更多">
-          <Dots className="icon icon-sm" />
-        </button>
+        <SettingsMenu />
       </div>
     </div>
   )

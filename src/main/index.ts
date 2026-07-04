@@ -1,9 +1,7 @@
 import { join } from 'path'
 import { app, globalShortcut, BaseWindow, WebContentsView, ipcMain, dialog } from 'electron'
-import { openAndParse } from './parsers'
+import { deleteBook, getLibraryState, importBook, loadBook, relocateBook, renameBook, saveProgress } from './store/library'
 
-// PROJECT_PLAN §9.1:BaseWindow + 两个 WebContentsView(reader 叠上层 / decoy 常驻底层)。
-// 老板键只切 reader 可见性 → 零 loadURL、零白屏。
 let win: BaseWindow | null = null
 let readerView: WebContentsView | null = null
 let decoyView: WebContentsView | null = null
@@ -17,7 +15,6 @@ function layout(): void {
   decoyView?.setBounds(bounds)
 }
 
-// dev 走 vite dev server,prod 走打包 html
 function loadPage(view: WebContentsView, page: 'index' | 'decoy'): void {
   const devUrl = process.env['ELECTRON_RENDERER_URL']
   if (devUrl) view.webContents.loadURL(page === 'index' ? devUrl : `${devUrl}/${page}.html`)
@@ -25,8 +22,30 @@ function loadPage(view: WebContentsView, page: 'index' | 'decoy'): void {
 }
 
 function lockTitle(view: WebContentsView): void {
-  // §9.2:锁死窗口标题,禁止 HTML <title> 覆盖
   view.webContents.on('page-title-updated', (e) => e.preventDefault())
+}
+
+function setBossHidden(hidden: boolean): boolean {
+  if (!readerView) return bossHidden
+  bossHidden = hidden
+  readerView.setVisible(!bossHidden)
+  win?.setTitle('Claude')
+  if (bossHidden) decoyView?.webContents.focus()
+  else readerView.webContents.focus()
+  readerView.webContents.send('boss:changed', bossHidden)
+  return bossHidden
+}
+
+function toggleBoss(): void {
+  setBossHidden(!bossHidden)
+}
+
+function registerBossEsc(view: WebContentsView, hidden: boolean): void {
+  view.webContents.on('before-input-event', (event, input) => {
+    if (input.type !== 'keyDown' || input.key !== 'Escape') return
+    event.preventDefault()
+    setBossHidden(hidden)
+  })
 }
 
 function createWindow(): void {
@@ -39,39 +58,31 @@ function createWindow(): void {
     backgroundColor: '#F5F4ED'
   })
 
-  // decoy 先建、常驻底层、预加载(切换时零闪烁)
   decoyView = new WebContentsView({ webPreferences: { sandbox: false } })
   win.contentView.addChildView(decoyView)
   loadPage(decoyView, 'decoy')
   lockTitle(decoyView)
+  registerBossEsc(decoyView, false)
 
-  // reader 叠在上层
   readerView = new WebContentsView({
     webPreferences: { preload: join(__dirname, '../preload/index.js'), sandbox: false }
   })
   win.contentView.addChildView(readerView)
   loadPage(readerView, 'index')
   lockTitle(readerView)
+  registerBossEsc(readerView, true)
 
   win.setTitle('Claude')
   layout()
   win.on('resize', layout)
   win.on('closed', () => {
-    // §9.6:BaseWindow 关闭不自动销毁子视图 webContents,显式清理
     readerView?.webContents.close()
     decoyView?.webContents.close()
     readerView = null
     decoyView = null
     win = null
+    bossHidden = false
   })
-}
-
-function toggleBoss(): void {
-  if (!readerView) return
-  bossHidden = !bossHidden
-  readerView.setVisible(!bossHidden) // 只切可见性
-  if (bossHidden) decoyView?.webContents.focus()
-  else readerView.webContents.focus()
 }
 
 function registerBossKey(): void {
@@ -79,18 +90,45 @@ function registerBossKey(): void {
   if (!ok) globalShortcut.register('CommandOrControl+`', toggleBoss)
 }
 
-// M2:打开文件对话框 + 解析成 Book(纯 JSON 回传渲染层)
 ipcMain.handle('book:open', async () => {
   if (!win) return null
-  // Electron 31 的 dialog 运行时接受 BaseWindow,但类型仍标 BrowserWindow,cast 之
   const r = await dialog.showOpenDialog(win as unknown as Electron.BrowserWindow, {
     title: '导入书籍',
     filters: [{ name: '电子书 (TXT / EPUB / PDF)', extensions: ['txt', 'epub', 'pdf'] }],
     properties: ['openFile']
   })
   if (r.canceled || !r.filePaths[0]) return null
-  return openAndParse(r.filePaths[0])
+  return importBook(r.filePaths[0])
 })
+
+ipcMain.handle('library:get', () => getLibraryState())
+
+ipcMain.handle('library:load-book', (_event, bookId: string) => loadBook(bookId))
+
+ipcMain.handle('library:save-progress', (_event, fileHash: string, blockIndex: number) => {
+  saveProgress(fileHash, blockIndex)
+})
+
+ipcMain.handle('library:rename-book', (_event, bookId: string, name: string) => renameBook(bookId, name))
+
+ipcMain.handle('library:delete-book', (_event, bookId: string) => deleteBook(bookId))
+
+ipcMain.handle('library:relocate-book', async (_event, bookId: string) => {
+  if (!win) return null
+  const r = await dialog.showOpenDialog(win as unknown as Electron.BrowserWindow, {
+    title: '重新选择文件',
+    filters: [{ name: '电子书 (TXT / EPUB / PDF)', extensions: ['txt', 'epub', 'pdf'] }],
+    properties: ['openFile']
+  })
+  if (r.canceled || !r.filePaths[0]) return null
+  return relocateBook(bookId, r.filePaths[0])
+})
+
+ipcMain.handle('boss:get', () => bossHidden)
+
+ipcMain.handle('boss:toggle', () => setBossHidden(!bossHidden))
+
+ipcMain.handle('boss:set', (_event, hidden: boolean) => setBossHidden(hidden))
 
 app.whenReady().then(() => {
   createWindow()

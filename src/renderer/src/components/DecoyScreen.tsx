@@ -1,6 +1,5 @@
 import { Chevron, Plus, SearchIcon, SendArrow, Sparkle } from './icons'
 
-// 独立遮羞视图:一屏干净的 Claude 新会话(M3 由主进程作为第二个 WebContentsView 加载)
 export default function DecoyScreen() {
   return (
     <div className="app">
@@ -15,7 +14,7 @@ export default function DecoyScreen() {
         </button>
         <div className="search">
           <SearchIcon className="icon icon-sm" />
-          <input placeholder="Search chats…" />
+          <input placeholder="Search chats..." />
         </div>
         <div className="side-scroll">
           <div className="group-label">Recents</div>
@@ -30,9 +29,9 @@ export default function DecoyScreen() {
           </div>
         </div>
         <div className="account">
-          <div className="avatar">K</div>
+          <div className="avatar">A</div>
           <div className="account-meta">
-            <span className="account-name">Kyrie Chen</span>
+            <span className="account-name">admin</span>
             <span className="account-plan">Claude Pro</span>
           </div>
           <Chevron className="icon icon-sm chev" />
@@ -48,7 +47,7 @@ export default function DecoyScreen() {
         <div className="decoy-center">
           <div className="decoy-hi">
             <Sparkle />
-            晚上好，Kyrie
+            Good evening, admin
           </div>
           <div className="composer">
             <textarea rows={1} placeholder="How can I help you today?" />
