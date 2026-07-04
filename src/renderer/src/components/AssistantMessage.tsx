@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import type { Message } from '../store'
 import { useStore } from '../store'
-import { BLOCKS } from '../disguise/content'
 import { buildSegments, buildThinking, thinkDelayMs } from '../disguise/composer'
 import { buildInstant, streamSegments } from '../disguise/stream'
 import type { Segment } from '../disguise/types'
@@ -11,13 +10,21 @@ const END_NOTE = '（本章到这儿。剩下的，明天上班再看。）'
 
 export default function AssistantMessage({ msg, onScroll }: { msg: Message; onScroll: () => void }) {
   const mode = useStore((s) => s.mode)
+  const blocks = useStore((s) => s.blocks)
   const setTyping = useStore((s) => s.setTyping)
   const bodyRef = useRef<HTMLDivElement>(null)
   const [phase, setPhase] = useState<'thinking' | 'show'>(msg.animate ? 'thinking' : 'show')
 
   const i = msg.blockIndex ?? 0
-  const thinking = mode === 'mixed' && !msg.endNote ? buildThinking(i) : null
-  const segments: Segment[] = msg.endNote ? [{ kind: 'novel', text: END_NOTE }] : buildSegments(BLOCKS[i], i, mode)
+  const plain = msg.endNote || !!msg.errorText
+  const thinking = mode === 'mixed' && !plain ? buildThinking(i) : null
+  const segments: Segment[] = msg.errorText
+    ? [{ kind: 'novel', text: msg.errorText }]
+    : msg.endNote
+      ? [{ kind: 'novel', text: END_NOTE }]
+      : blocks[i]
+        ? buildSegments(blocks[i], i, mode)
+        : []
 
   // 假思考 dots 阶段(仅动画消息)
   useEffect(() => {
@@ -38,7 +45,7 @@ export default function AssistantMessage({ msg, onScroll }: { msg: Message; onSc
     buildInstant(body, segments)
     onScroll()
     return
-    // segments 由 mode 派生;切换排版时整条消息以新 id 重建(重挂),故此处依赖 phase/mode 已足够
+    // segments 由 mode/blocks 派生;切换排版/换书时整条消息以新 id 重建,依赖 phase/mode 足够
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [phase, mode])
 

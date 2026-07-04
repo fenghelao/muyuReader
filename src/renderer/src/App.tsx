@@ -20,20 +20,18 @@ export default function App() {
     document.documentElement.style.setProperty('--reader-font', readerFont + 'px')
   }, [readerFont])
 
-  // 老板键:Electron 全局快捷键(window.api,主进程转发)+ 浏览器 Esc 兜底
+  // 老板键:Electron 里由主进程全局快捷键切 WebContentsView(§9.1),渲染层不处理;
+  // 纯浏览器(无 window.api)用 Esc + 页面内 decoy 兜底。
   useEffect(() => {
-    const off = window.api?.onBossToggle(() => toggleBoss())
+    const isElectron = !!window.api
     const onKey = (e: KeyboardEvent): void => {
-      if (e.key === 'Escape') {
+      if (e.key === 'Escape' && !isElectron) {
         e.preventDefault()
         toggleBoss()
       }
     }
     document.addEventListener('keydown', onKey)
-    return () => {
-      off?.()
-      document.removeEventListener('keydown', onKey)
-    }
+    return () => document.removeEventListener('keydown', onKey)
   }, [toggleBoss])
 
   return (

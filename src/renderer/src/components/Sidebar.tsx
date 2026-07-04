@@ -7,7 +7,20 @@ export default function Sidebar() {
   const activeBookId = useStore((s) => s.activeBookId)
   const setActive = useStore((s) => s.setActive)
   const rename = useStore((s) => s.rename)
+  const loadBook = useStore((s) => s.loadBook)
+  const showError = useStore((s) => s.showError)
   const [editingId, setEditingId] = useState<string | null>(null)
+
+  // New chat = 导入一本书(Electron 里弹文件框;纯浏览器无 window.api 则无操作)
+  async function onNewChat(): Promise<void> {
+    const res = await window.api?.openBook?.()
+    if (!res) return
+    if ('error' in res) {
+      showError(res.error)
+      return
+    }
+    loadBook(res)
+  }
 
   return (
     <aside className="sidebar">
@@ -15,7 +28,7 @@ export default function Sidebar() {
         <Sparkle className="brand-logo" />
         <span className="brand-name">Claude</span>
       </div>
-      <button className="side-btn">
+      <button className="side-btn" onClick={onNewChat}>
         <Plus className="icon icon-sm" />
         New chat
       </button>

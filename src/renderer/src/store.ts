@@ -1,8 +1,9 @@
 import { create } from 'zustand'
-import { BLOCK_COUNT, HISTORY, SAMPLE_BOOKS } from './disguise/content'
+import { BLOCKS, HISTORY, SAMPLE_BOOKS } from './disguise/content'
 import type { SampleBook } from './disguise/content'
 import { qFor } from './disguise/composer'
-import type { Mode } from './disguise/types'
+import { chunkBook } from './disguise/chunker'
+import type { Block, Mode } from './disguise/types'
 
 export interface Message {
   id: number
@@ -11,11 +12,20 @@ export interface Message {
   blockIndex?: number
   animate?: boolean
   endNote?: boolean
+  errorText?: string
 }
 
 type Theme = 'light' | 'dark'
 
+/** loadBook 接受的最小书籍形状(与 preload IpcBook 结构兼容) */
+export interface LoadedBook {
+  title?: string
+  chapters: { text: string }[]
+}
+
 let msgId = 0
+let bookSeq = 0
+
 function backfill(count: number): Message[] {
   const out: Message[] = []
   for (let i = 0; i < count; i++) {
@@ -50,6 +60,7 @@ interface State {
   readerFont: number
   books: SampleBook[]
   activeBookId: string
+  blocks: Block[]
   blockIndex: number
   messages: Message[]
   typing: boolean
@@ -64,6 +75,8 @@ interface State {
   setActive: (id: string) => void
   rename: (id: string, name: string) => void
   advance: () => void
+  loadBook: (book: LoadedBook) => void
+  showError: (text: string) => void
 }
 
 export const useStore = create<State>((set, get) => ({
@@ -72,6 +85,7 @@ export const useStore = create<State>((set, get) => ({
   readerFont: initialFont(),
   books: SAMPLE_BOOKS,
   activeBookId: SAMPLE_BOOKS[0].id,
+  blocks: BLOCKS,
   blockIndex: HISTORY,
   messages: backfill(HISTORY),
   typing: false,
@@ -111,12 +125,31 @@ export const useStore = create<State>((set, get) => ({
     if (s.typing) return
     const i = s.blockIndex
     const user: Message = { id: ++msgId, role: 'user', text: qFor(i) }
-    if (i >= BLOCK_COUNT) {
+    if (i >= s.blocks.length) {
       const end: Message = { id: ++msgId, role: 'assistant', endNote: true, animate: true }
       set({ messages: [...s.messages, user, end], typing: true })
     } else {
       const asst: Message = { id: ++msgId, role: 'assistant', blockIndex: i, animate: true }
       set({ messages: [...s.messages, user, asst], blockIndex: i + 1, typing: true })
     }
-  }
+  },
+
+  // M2:导入真书 → 切块 → 新建一个伪装会话(名字仍是 General coding session)并载入
+  loadBook: (book) => {
+    const blocks = chunkBook(book.chapters)
+    const h = Math.min(HISTORY, blocks.length)
+    const id = 'bk' + ++bookSeq
+    set({
+      blocks,
+      books: [{ id, name: 'General coding session' }, ...get().books],
+      activeBookId: id,
+      blockIndex: h,
+      messages: backfill(h),
+      typing: false,
+      bossOn: false
+    })
+  },
+
+  // §13:解析失败 → 伪装成一条 Claude 助手消息,不弹系统框
+  showError: (text) => set({ messages: [...get().messages, { id: ++msgId, role: 'assistant', errorText: text }] })
 }))
