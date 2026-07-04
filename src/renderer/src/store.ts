@@ -15,6 +15,8 @@ export interface Message {
 }
 
 type Theme = 'light' | 'dark'
+export type DisplayMode = 'chat' | 'reader'
+export type ReaderBackground = 'paper' | 'white' | 'sepia' | 'dark'
 
 /** loadBook 接受的最小书籍形状(与 preload IpcBook 结构兼容) */
 export interface LoadedBook {
@@ -59,10 +61,30 @@ function initialTheme(): Theme {
   }
   return typeof matchMedia !== 'undefined' && matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
 }
+function initialDisplayMode(): DisplayMode {
+  try {
+    const mode = localStorage.getItem('moyu.display')
+    if (mode === 'chat' || mode === 'reader') return mode
+  } catch {
+    /* ignore */
+  }
+  return 'chat'
+}
+function initialReaderBackground(): ReaderBackground {
+  try {
+    const bg = localStorage.getItem('moyu.readerBg')
+    if (bg === 'paper' || bg === 'white' || bg === 'sepia' || bg === 'dark') return bg
+  } catch {
+    /* ignore */
+  }
+  return 'paper'
+}
 
 interface State {
   mode: Mode
+  displayMode: DisplayMode
   theme: Theme
+  readerBackground: ReaderBackground
   readerFont: number
   books: ShelfBook[]
   activeBookId: string
@@ -75,6 +97,8 @@ interface State {
   libraryHydrated: boolean
 
   toggleMode: () => void
+  setDisplayMode: (mode: DisplayMode) => void
+  setReaderBackground: (bg: ReaderBackground) => void
   toggleTheme: () => void
   bumpFont: (delta: number) => void
   setTyping: (v: boolean) => void
@@ -86,6 +110,8 @@ interface State {
   relocateBook: (id: string) => void
   advance: () => void
   retreat: () => void
+  readerStep: (delta: number) => void
+  setProgress: (index: number) => void
   loadBook: (book: LoadedBook) => void
   hydrateLibrary: () => Promise<void>
   showError: (text: string) => void
@@ -111,7 +137,9 @@ function promoteBook(books: ShelfBook[], id: string): ShelfBook[] {
 
 export const useStore = create<State>((set, get) => ({
   mode: 'mixed',
+  displayMode: initialDisplayMode(),
   theme: initialTheme(),
+  readerBackground: initialReaderBackground(),
   readerFont: initialFont(),
   books: SAMPLE_BOOKS,
   activeBookId: SAMPLE_BOOKS[0].id,
@@ -127,6 +155,22 @@ export const useStore = create<State>((set, get) => ({
     if (get().typing) return
     const mode: Mode = get().mode === 'mixed' ? 'regular' : 'mixed'
     set({ mode, messages: backfill(get().blockIndex) })
+  },
+  setDisplayMode: (displayMode) => {
+    try {
+      localStorage.setItem('moyu.display', displayMode)
+    } catch {
+      /* ignore */
+    }
+    set({ displayMode })
+  },
+  setReaderBackground: (readerBackground) => {
+    try {
+      localStorage.setItem('moyu.readerBg', readerBackground)
+    } catch {
+      /* ignore */
+    }
+    set({ readerBackground })
   },
   toggleTheme: () => {
     const theme: Theme = get().theme === 'dark' ? 'light' : 'dark'
@@ -251,6 +295,28 @@ export const useStore = create<State>((set, get) => ({
     const s = get()
     if (s.typing || s.blockIndex <= 0) return
     const nextIndex = s.blockIndex - 1
+    set({
+      blockIndex: nextIndex,
+      messages: backfill(nextIndex),
+      typing: false
+    })
+    saveProgress(s.activeBookHash, nextIndex)
+  },
+
+  readerStep: (delta) => {
+    const s = get()
+    const nextIndex = Math.min(s.blocks.length, Math.max(0, s.blockIndex + delta))
+    set({
+      blockIndex: nextIndex,
+      messages: backfill(nextIndex),
+      typing: false
+    })
+    saveProgress(s.activeBookHash, nextIndex)
+  },
+
+  setProgress: (index) => {
+    const s = get()
+    const nextIndex = Math.min(s.blocks.length, Math.max(0, Math.floor(index)))
     set({
       blockIndex: nextIndex,
       messages: backfill(nextIndex),

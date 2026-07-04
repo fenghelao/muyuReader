@@ -68,6 +68,10 @@ body {
 .model-pick { display: flex; align-items: center; gap: 5px; padding: 5px 8px; border-radius: var(--radius-chip); font-size: 13.5px; color: var(--text-secondary); cursor: pointer; white-space: nowrap; }
 .model-pick:hover { background: var(--bg-hover); }
 .topbar-right { margin-left: auto; display: flex; align-items: center; gap: 4px; }
+.view-switch { display: flex; align-items: center; gap: 2px; padding: 2px; border: 1px solid var(--border-default); border-radius: 8px; }
+.view-switch button { height: 26px; border: 0; background: transparent; border-radius: 6px; padding: 0 9px; font-family: var(--font-ui); font-size: 12.5px; color: var(--text-secondary); cursor: pointer; }
+.view-switch button:hover { background: var(--bg-hover); color: var(--text-primary); }
+.view-switch button.is-active { background: var(--bg-selected); color: var(--text-primary); }
 .tb-btn { display: flex; align-items: center; gap: 6px; height: 32px; padding: 0 10px; border: 1px solid var(--border-default); background: transparent; border-radius: 8px; font-family: var(--font-ui); font-size: 13px; color: var(--text-secondary); cursor: pointer; }
 .tb-btn:hover { background: var(--bg-hover); color: var(--text-primary); }
 .tb-ico { width: 32px; height: 32px; padding: 0; justify-content: center; border-color: transparent; }
@@ -78,7 +82,28 @@ body {
 .settings-menu button:hover { background: var(--bg-hover); }
 .settings-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 5px 5px 5px 9px; font-size: 13px; color: var(--text-primary); }
 .settings-row div { display: flex; gap: 4px; }
-.settings-row button { width: 34px; padding: 6px 0; text-align: center; }
+.settings-row button { width: auto; min-width: 34px; padding: 6px 8px; text-align: center; }
+.settings-row button.is-active { background: var(--bg-selected); color: var(--text-primary); }
+
+/* ---- Normal reader view ---- */
+.reader-view { flex: 1; min-height: 0; display: flex; flex-direction: column; color: #191815; }
+.reader-bg-paper { background: #F5F4ED; }
+.reader-bg-white { background: #FAFAF7; }
+.reader-bg-sepia { background: #EFE2C8; }
+.reader-bg-dark { background: #20201E; color: #F3EFE4; }
+.reader-toolbar { flex: none; display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 14px 24px 10px; border-bottom: 1px solid rgba(0, 0, 0, .08); }
+.reader-bg-dark .reader-toolbar { border-bottom-color: rgba(255, 255, 255, .12); }
+.reader-title { display: flex; flex-direction: column; min-width: 0; gap: 3px; }
+.reader-title strong { font-size: 14px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.reader-title span { font-size: 12px; color: color-mix(in srgb, currentColor 62%, transparent); }
+.reader-controls { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
+.reader-controls button, .reader-controls select { height: 30px; border: 1px solid rgba(0, 0, 0, .14); background: rgba(255, 255, 255, .36); color: inherit; border-radius: 7px; padding: 0 9px; font-family: var(--font-ui); font-size: 12.5px; cursor: pointer; }
+.reader-controls button:disabled { opacity: .45; cursor: default; }
+.reader-bg-dark .reader-controls button, .reader-bg-dark .reader-controls select { border-color: rgba(255, 255, 255, .18); background: rgba(255, 255, 255, .06); }
+.reader-progress { flex: none; padding: 8px 24px 0; }
+.reader-progress input { width: 100%; accent-color: var(--accent-primary); }
+.reader-page { flex: 1; overflow-y: auto; width: min(760px, calc(100% - 48px)); margin: 0 auto; padding: 34px 0 80px; font-family: var(--font-body); line-height: 1.78; }
+.reader-page p { margin: 0 0 1.05em; text-indent: 2em; }
 
 /* ---- Thread ---- */
 .thread { flex: 1; overflow-y: auto; }

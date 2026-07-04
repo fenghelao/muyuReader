@@ -6,6 +6,7 @@ let win: BaseWindow | null = null
 let readerView: WebContentsView | null = null
 let decoyView: WebContentsView | null = null
 let bossHidden = false
+const APP_NAME = 'MuYuReader'
 
 function layout(): void {
   if (!win) return
@@ -29,7 +30,7 @@ function setBossHidden(hidden: boolean): boolean {
   if (!readerView) return bossHidden
   bossHidden = hidden
   readerView.setVisible(!bossHidden)
-  win?.setTitle('Claude')
+  win?.setTitle(APP_NAME)
   if (bossHidden) decoyView?.webContents.focus()
   else readerView.webContents.focus()
   readerView.webContents.send('boss:changed', bossHidden)
@@ -54,7 +55,7 @@ function createWindow(): void {
     height: 820,
     minWidth: 800,
     minHeight: 600,
-    title: 'Claude',
+    title: APP_NAME,
     backgroundColor: '#F5F4ED'
   })
 
@@ -72,7 +73,7 @@ function createWindow(): void {
   lockTitle(readerView)
   registerBossEsc(readerView, true)
 
-  win.setTitle('Claude')
+  win.setTitle(APP_NAME)
   layout()
   win.on('resize', layout)
   win.on('closed', () => {
@@ -131,6 +132,7 @@ ipcMain.handle('boss:toggle', () => setBossHidden(!bossHidden))
 ipcMain.handle('boss:set', (_event, hidden: boolean) => setBossHidden(hidden))
 
 app.whenReady().then(() => {
+  app.setName(APP_NAME)
   createWindow()
   registerBossKey()
   app.on('activate', () => {

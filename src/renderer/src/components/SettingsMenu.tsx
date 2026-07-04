@@ -4,8 +4,10 @@ import { Dots } from './icons'
 
 export default function SettingsMenu() {
   const mode = useStore((s) => s.mode)
+  const displayMode = useStore((s) => s.displayMode)
   const theme = useStore((s) => s.theme)
   const toggleMode = useStore((s) => s.toggleMode)
+  const setDisplayMode = useStore((s) => s.setDisplayMode)
   const bumpFont = useStore((s) => s.bumpFont)
   const toggleTheme = useStore((s) => s.toggleTheme)
   const toggleBoss = useStore((s) => s.toggleBoss)
@@ -44,6 +46,17 @@ export default function SettingsMenu() {
             e.stopPropagation()
           }}
         >
+          <div className="settings-row">
+            <span>View</span>
+            <div>
+              <button className={displayMode === 'chat' ? 'is-active' : ''} onClick={() => setDisplayMode('chat')}>
+                Claude
+              </button>
+              <button className={displayMode === 'reader' ? 'is-active' : ''} onClick={() => setDisplayMode('reader')}>
+                Reader
+              </button>
+            </div>
+          </div>
           <button onClick={toggleMode}>Style: {mode === 'mixed' ? 'Mixed' : 'Regular'}</button>
           <div className="settings-row">
             <span>Text size</span>

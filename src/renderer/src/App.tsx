@@ -5,14 +5,17 @@ import TopBar from './components/TopBar'
 import Thread from './components/Thread'
 import Composer from './components/Composer'
 import Decoy from './components/Decoy'
+import ReaderView from './components/ReaderView'
 
 export default function App() {
   const theme = useStore((s) => s.theme)
+  const displayMode = useStore((s) => s.displayMode)
   const readerFont = useStore((s) => s.readerFont)
   const setBoss = useStore((s) => s.setBoss)
   const hydrateLibrary = useStore((s) => s.hydrateLibrary)
   const advance = useStore((s) => s.advance)
   const retreat = useStore((s) => s.retreat)
+  const readerStep = useStore((s) => s.readerStep)
   const keyNavLock = useRef(0)
 
   // 主题 / 字号 → 根元素 CSS(§4)
@@ -57,6 +60,10 @@ export default function App() {
       if (now - keyNavLock.current < 220) return
       keyNavLock.current = now
       e.preventDefault()
+      if (useStore.getState().displayMode === 'reader') {
+        readerStep(e.key === 'ArrowDown' ? 1 : -1)
+        return
+      }
       if (e.key === 'ArrowDown') {
         advance()
       } else {
@@ -65,7 +72,7 @@ export default function App() {
     }
     document.addEventListener('keydown', onKey)
     return () => document.removeEventListener('keydown', onKey)
-  }, [advance, retreat, setBoss])
+  }, [advance, readerStep, retreat, setBoss])
 
   return (
     <>
@@ -73,8 +80,14 @@ export default function App() {
         <Sidebar />
         <main className="main">
           <TopBar />
-          <Thread />
-          <Composer />
+          {displayMode === 'reader' ? (
+            <ReaderView />
+          ) : (
+            <>
+              <Thread />
+              <Composer />
+            </>
+          )}
         </main>
       </div>
       <Decoy />

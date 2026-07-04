@@ -1,19 +1,19 @@
-# 打包 = 神似而非全等(PROJECT_PLAN §9.2 / §12):显示名用 Claude,bundleId 用自有域名规避商标
+# 打包 = 神似而非全等(PROJECT_PLAN §9.2 / §12):显示名用 MuYuReader,bundleId 用自有域名规避商标
 appId: com.fenghelao.muyureader
-productName: Claude
+productName: MuYuReader
 directories:
   buildResources: build
 files:
   - out/**
   - '!**/*.map'
 win:
-  executableName: Claude
+  executableName: MuYuReader
   icon: build/claude.ico
 mac:
   category: public.app-category.productivity
   icon: build/claude.icns
   extendInfo:
-    CFBundleName: Claude
-    CFBundleDisplayName: Claude
+    CFBundleName: MuYuReader
+    CFBundleDisplayName: MuYuReader
 linux:
   category: Utility

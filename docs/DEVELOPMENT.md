@@ -1,4 +1,4 @@
-# 开发交接文档(muyuReader）
+# 开发交接文档(MuYuReader)
 
 > 面向接手开发者 / AI 编码助手(Codex 等)。读完这份就能接着干,不需要额外上下文。
 > 设计蓝图见 [`PROJECT_PLAN.md`](PROJECT_PLAN.md)(需求/背景的单一真源);本文件是 **as-built 现状 + 下一步**。
@@ -8,23 +8,23 @@
 
 ## 1. 一句话
 
-界面像素级伪装成 **Claude 桌面客户端**的电子书阅读器(上班摸鱼读小说):侧栏 Recents=书架、正文伪装成 Claude 的回答、回车"发消息"=翻页、`Ctrl+Shift+Space`=老板键秒切空白 Claude。
+默认伪装成 **Claude 桌面客户端**的电子书阅读器(上班摸鱼读小说):侧栏 Recents=书架、正文伪装成 Claude 的回答、回车"发消息"=翻页、`Ctrl+Shift+Space`=老板键秒切空白 Claude。也提供正常 Reader 排版,用于不需要伪装时连续阅读、拖进度、切背景和字号。
 
 ## 2. 当前进度(M0–M4 前置功能已完成)
 
 | 里程碑 | 状态 | 内容 |
 |---|---|---|
-| M0 脚手架 | ✅ | electron-vite(main/preload/renderer)+ React18+TS+Vite+Zustand;electron-builder 配好(productName=Claude) |
+| M0 脚手架 | ✅ | electron-vite(main/preload/renderer)+ React18+TS+Vite+Zustand;electron-builder 配好(productName=MuYuReader) |
 | M1 UI 克隆 + 问答伪装 | ✅ | 像素级复刻 Claude 桌面版(token 层已逐项核对);Sidebar/TopBar/Thread/Composer;回车翻页+假思考+逐字打字机;常规/混合两种排版;字号可调;亮暗跟随 |
 | M2 解析器 + 切块 | ✅(逻辑通,待真机多样本回归） | 主进程 TXT/EPUB/PDF 解析 → 统一 Book;渲染层 chunker 切块;New chat 导入 |
 | M3 老板键双视图 | ✅ | 主进程 BaseWindow + 两个 WebContentsView(reader/decoy),只切可见性=零闪烁 |
 | 进度持久化 | ✅ | electron-store 存书架元数据 + `ReadingPosition{fileHash,chunkerVersion,blockIndex}`,重启自动加载上次活跃书籍 |
 | 书架真实化 | ✅ | Recents 本地书架、搜索、重命名、删除二次确认、Relocate 路径迁移、最近阅读置顶 |
-| 阅读交互 | ✅ | Enter/↓/滚到底下一段,↑/滚到顶上一段,进度同步保存 |
+| 阅读交互 | ✅ | Claude 视图支持 Enter/↓/滚到底下一段、↑/滚到顶上一段;Reader 视图支持进度条拖动、Previous/Next、↑/↓、滚轮到边界翻段,进度同步保存 |
 | 伪装收尾 | ✅(基础完成) | 右下角 DevBar 已移入顶栏 `...` 设置菜单;账号统一为 `admin`;老板键 Esc/全局快捷键/菜单三通路 |
-| M4 Windows 打包 | ✅(待人工安装验证) | `npm run dist` 已生成 `dist/Claude Setup 0.1.0.exe`;当前未签名且使用默认 Electron 图标 |
+| M4 Windows 打包 | ✅(待人工安装验证) | `npm run dist` 生成 `dist/MuYuReader Setup 0.1.0.exe`;当前未签名且使用默认 Electron 图标 |
 
-提交链:`8881bf4`(M0/M1)→ `b1f123f`(伪装改造)→ `d601359`(M2/M3)→ `9f163f9`(gitignore 测试书)。
+提交链以 `git log --oneline` 为准;关键早期节点:`8881bf4`(M0/M1)→ `b1f123f`(伪装改造)→ `d601359`(M2/M3)→ `9f163f9`(gitignore 测试书)。
 
 **下一步从 §7 roadmap 选。**
 
@@ -32,7 +32,7 @@
 
 ```bash
 npm install          # 依赖已装过;换机器需重装(会下 Electron 二进制,本机配了 electron_mirror)
-npm run dev          # 真·桌面版(Electron 窗口,标题 Claude)
+npm run dev          # 真·桌面版(Electron 窗口,标题 MuYuReader)
 npm run dev:web      # 只跑渲染层,浏览器预览 http://localhost:4610(无 Electron,openBook/老板键走浏览器降级)
 npm run typecheck    # tsc 双工程(node + web),提交前必过
 npm run build        # electron-vite 构建(main/preload/renderer 双入口 index+decoy)
@@ -58,19 +58,21 @@ src/renderer/
   index.html / decoy.html    两个入口(reader / 遮羞视图)
   src/
     main.tsx / decoy.tsx     入口;main.tsx 在 DEV 暴露 window.__moyu={store,chunkText,chunkBook} 供调试
-    App.tsx                  布局 + 主题/字号 effect + boss 状态同步 + ↑/↓ 键盘翻页
-    store.ts                 Zustand:mode/theme/font/books/blocks/blockIndex/messages/typing/bossOn + advance/retreat/loadBook/showError
+    App.tsx                  布局 + 主题/字号 effect + boss 状态同步 + Claude/Reader 双视图切换 + ↑/↓ 键盘翻页
+    store.ts                 Zustand:mode/displayMode/theme/readerBackground/font/books/blocks/blockIndex/messages/typing/bossOn + advance/retreat/readerStep/setProgress/loadBook/showError
     disguise/                ★伪装排版算法(§5 PROJECT_PLAN)
       types.ts               Segment = novel | action;Block;Thinking
       content.ts             演示内容(内置武侠范文 BLOCKS)+ 伪装素材池(THINK_POOL / ACTION_POOL)
       composer.ts            qFor(伪问题)/ buildThinking / pickAction / buildSegments(按 mode 编排)
       chunker.ts             chunkText/chunkBook:段/句/字三级切块(220–420 字/块)
       stream.ts              打字机(rAF 变速+标点停顿)+ action 折叠行渲染(命令式写进 body ref)
-    components/              Sidebar/TopBar/Thread/Composer/AssistantMessage/ThinkBlock/UserBubble/Decoy/DecoyScreen/SettingsMenu/icons
+    components/              Sidebar/TopBar/Thread/Composer/ReaderView/AssistantMessage/ThinkBlock/UserBubble/Decoy/DecoyScreen/SettingsMenu/icons
     styles/tokens.css        §4.1 CSS 变量(亮/暗);app.css 组件样式
 ```
 
-**数据流(阅读)**:`ParsedBook`(main 解析)→ IPC → `store.loadBook` → `chunkBook` 切成 `Block[]` → `store.blocks` → `AssistantMessage` 用 `buildSegments(blocks[i], i, mode)` → `stream.ts` 逐字/整块渲染进 `.body`。
+**数据流(Claude 阅读)**:`ParsedBook`(main 解析)→ IPC → `store.loadBook` → `chunkBook` 切成 `Block[]` → `store.blocks` → `AssistantMessage` 用 `buildSegments(blocks[i], i, mode)` → `stream.ts` 逐字/整块渲染进 `.body`。
+
+**数据流(Reader 阅读)**:同一份 `store.blocks/blockIndex` → `ReaderView` 直接渲染当前 block 的 paragraphs。Reader 翻页用 `readerStep()` 而不是 `advance()`,不会进入 Claude 打字机的 `typing=true`;拖进度用 `setProgress()` 并强制清理旧 typing 状态。
 
 **数据流(书架/进度)**:导入/Relocate 在主进程计算文件 SHA-256 作为 `fileHash` → `electron-store` 的 `library.json` 保存 `items[]`、`activeBookId`、`progress[fileHash]` → renderer 只拿 `{id,name}` 书架项和解析后的 `ParsedBook`。翻页/上翻会保存 `blockIndex`;切书/保存进度会把该书移到 Recents 顶部。
 
@@ -96,10 +98,12 @@ src/renderer/
 - **阅读进度**:已持久化到主进程 `electron-store`。导入时按文件 SHA-256 作为 `fileHash`;翻页保存 `blockIndex`;重启后读取书架并自动加载上次活跃书籍。
 - **书架真实化**:Recents 已从演示数组升级为本地书架;支持搜索、重命名、删除二次确认、Relocate 重新绑定文件路径、最近阅读置顶。删除只删本地记录,不删原始书籍文件。
 - **设置入口**:右下角临时 `DevBar` 已删除;排版/字号/主题/老板键入口移入顶栏 `...` 设置菜单。
+- **软件显示名**:用户要求从伪装名改为 `MuYuReader`;主窗口标题、`app.setName`、Windows executableName、mac bundle display name 均已同步。界面内仍保留 Claude 风格/文案用于伪装。
+- **正常 Reader 模式**:新增 `displayMode=chat|reader`;顶栏有 Claude/Reader 显式切换,设置菜单也保留入口。Reader 模式提供正常阅读排版、背景切换、字号调节、进度百分比、进度条拖动和边界滚轮/↑↓ 翻段。
 
 ## 7. 下一步 Roadmap(建议顺序)
 
-1. **安装包人工验证**:安装 `dist/Claude Setup 0.1.0.exe`,验证启动、导入、续读、Relocate、老板键、卸载/重装。测试 OK 后再把安装包上传 GitHub Release。
+1. **安装包人工验证**:安装 `dist/MuYuReader Setup 0.1.0.exe`,验证启动、导入、续读、Reader 模式翻页/拖进度、Relocate、老板键、卸载/重装。测试 OK 后再把安装包上传 GitHub Release。
 2. **Release 前图标/签名**:当前 builder 使用默认 Electron 图标且跳过签名;正式 release 前补 `build/claude.ico` / 签名证书或明确无签名分发。
 3. **真实文件回归**:多样本 TXT/EPUB/PDF 导入、切块、续读、Relocate、老板键实窗回归。
 4. **PDF 复杂版式**:当前只做基础行聚类;多栏/表格重排待优化(§7.2)。
