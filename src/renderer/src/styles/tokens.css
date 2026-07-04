@@ -1,0 +1,22 @@
+/* ============ Design tokens(PROJECT_PLAN §4.1)============ */
+:root {
+  --bg-canvas: #f5f4ed; --bg-elevated: #faf9f5; --bg-sidebar: #f0ece0;
+  --bg-user-bubble: #e5e0d6; --bg-composer: #ffffff; --bg-code: #f0ede4;
+  --bg-hover: #ebe7db; --bg-selected: #e5e0d6;
+  --text-primary: #141413; --text-secondary: #5c5a54; --text-tertiary: #8a8780; --text-mid: #b0aea5;
+  --border-default: #e5e0d6; --border-subtle: #e8e6dc;
+  --accent-primary: #c96442; --accent-coral: #d97757;
+  --radius-bubble: 16px; --radius-chip: 8px; --radius-btn: 10px;
+  --reader-font: 16px; /* 阅读正文字号,可调(§3.2 外观设置) */
+  --font-ui: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Helvetica, Arial, "PingFang SC", "Microsoft YaHei", sans-serif;
+  --font-body: "Source Serif 4", "Noto Serif SC", Georgia, "Songti SC", "SimSun", serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+}
+:root[data-theme="dark"] {
+  --bg-canvas: #262624; --bg-elevated: #2b2a27; --bg-sidebar: #1f1e1b;
+  --bg-user-bubble: #3a3833; --bg-composer: #1f1e1b; --bg-code: #1f1e1b;
+  --bg-hover: #2f2e2b; --bg-selected: #3a3833;
+  --text-primary: #faf9f5; --text-secondary: #c2bfb6; --text-tertiary: #8a8780; --text-mid: #6b6862;
+  --border-default: #3d3a35; --border-subtle: #33302b;
+  --accent-primary: #d97757; --accent-coral: #d97757;
+}
