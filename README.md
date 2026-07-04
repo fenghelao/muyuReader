@@ -4,6 +4,11 @@
 
 MuYuReader 也提供正常 Reader 排版：不需要伪装时，可以切到干净的阅读器视图，拖动进度、调背景、改字号继续读。
 
+## 下载
+
+- [下载 Windows 安装包](https://github.com/fenghelao/muyuReader/releases/download/v0.1.0/MuYuReader.Setup.0.1.0.exe)
+- [查看全部 Release](https://github.com/fenghelao/muyuReader/releases/tag/v0.1.0)
+
 ## 亮点
 
 - **Claude 风格伪装界面**：侧栏、会话、输入框、模型选择器、工具摘要行，整体像一个正常 AI 聊天客户端。
