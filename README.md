@@ -1,48 +1,59 @@
 # MuYuReader(摸鱼阅读器)
 
-一个默认伪装成 **Claude 桌面客户端**的电子书阅读器 —— 屏幕上看着在正常用 Claude 问答,实际在读小说;也可以切到正常 Reader 排版阅读。
+一个把电子书阅读伪装成 **Claude 桌面聊天界面**的本地阅读器。屏幕上看起来像是在和 Claude 讨论代码、文档、问题，实际可以安静读 TXT / EPUB / PDF。
 
-> **接手开发先读 [`docs/DEVELOPMENT.md`](docs/DEVELOPMENT.md)** —— 当前进度、架构地图、关键约定、下一步 roadmap。
-> 设计蓝图见 [`docs/PROJECT_PLAN.md`](docs/PROJECT_PLAN.md)(需求单一真源)。静态交互原型见 [`prototype/index.html`](prototype/index.html)(单文件,浏览器打开即看)。
+MuYuReader 也提供正常 Reader 排版：不需要伪装时，可以切到干净的阅读器视图，拖动进度、调背景、改字号继续读。
 
-## 技术栈
+## 亮点
 
-- **Electron**(BaseWindow + WebContentsView)+ **Vite** + **React 18** + **TypeScript**
-- 状态 **Zustand**,样式用原生 CSS 变量 token 层(PROJECT_PLAN §4.1)
-- 构建 **electron-vite**,分发 **electron-builder**
+- **Claude 风格伪装界面**：侧栏、会话、输入框、模型选择器、工具摘要行，整体像一个正常 AI 聊天客户端。
+- **摸鱼友好阅读流**：回车、下滑、`↓` 都可以继续下一段；上滑、`↑` 回到上一段。
+- **正常 Reader 模式**：进度百分比、进度条拖动、上一段/下一段、背景切换、字号调节。
+- **本地书架和进度**：导入的书本、最近阅读、每本书读到哪里，都会保存在本机。
+- **老板键 / 遮挡视图**：`Esc` 或快捷入口可以快速切到空白聊天视图。
+- **本地优先**：不内置书源、不抓取正文、不调用 AI API，导入什么由用户自己负责。
 
-## 核心玩法
+## 支持格式
 
-- 左侧 `Recents` = 书架(导入默认名 `General coding session`,可改名)
-- Claude 视图正文伪装成回答:**常规排版**(纯净阅读)/ **混合排版**(一行折叠工具摘要,像 Claude 在写代码)
-- Reader 视图提供正常阅读器排版:进度百分比、进度条拖动、上一段/下一段、背景和字号切换
-- 回车「发消息」= 翻页(Claude 视图假思考 + 逐字打字机);`Esc` = 老板键(切空白 Claude 新会话)
-- 阅读字号可调、亮暗跟随系统、阅读进度记忆;Reader 视图支持滚轮到边界和 ↑/↓ 翻页
-- 伪装排版全程**确定性**(禁随机),保证续读/重开一致
+- `TXT`
+- `EPUB`
+- `PDF`，目前偏基础，适合有文字层的 PDF
 
-## 开发
+## 使用方式
 
 ```bash
 npm install
 
-npm run dev       # 启动 Electron(桌面版)
-npm run dev:web   # 只跑渲染层,浏览器预览(http://localhost:4610)
+npm run dev       # 启动 Electron 桌面版
+npm run dev:web   # 只跑渲染层预览: http://localhost:4610
+npm run typecheck # 类型检查
 npm run build     # 构建
-npm run dist      # 打包安装程序
+npm run dist      # 打包 Windows 安装包
 ```
 
-## 目录
+启动后点击左侧 **New chat** 导入本地书籍。默认会话名会伪装成 `General coding session`，可以在侧栏重命名。
 
+## 界面模式
+
+- **Claude / Chat 模式**：正文以聊天回答的形式出现，混合模式会穿插灰色折叠工具摘要行，尽量像正在正常使用 Claude。
+- **Reader 模式**：标准阅读器排版，适合认真阅读和快速拖进度。
+
+## 本地数据
+
+MuYuReader 使用 `electron-store` 保存本地书架和阅读进度。书籍文件不会被复制进仓库，也不会上传到任何服务。
+
+## 打包
+
+```bash
+npm run dist
 ```
-src/main/       Electron 主进程(窗口 / 老板键 / 标题伪装 / 解析器工厂)
-src/preload/    contextBridge 白名单 IPC
-src/renderer/   React 渲染层(Claude 克隆 UI + Reader 视图 + 伪装排版算法)
-  src/disguise/   切块 / 编排 / 打字机 / 内容池(确定性)
-  src/components/ Sidebar / TopBar / Thread / Composer / ...
-prototype/      早期静态 HTML 原型(参考)
-docs/           设计文档
-```
 
-## 合规
+Windows 安装包会生成在 `dist/`。安装包不建议提交到 git，测试完成后可以上传到 GitHub Releases。
 
-仅本地文件阅读器,不内置书源、不抓取正文;导入内容责任自负。软件名为 MuYuReader,界面/图标风格神似 Claude 但 `bundleId` 用自有域名,规避商标级冒充。
+## 免责声明
+
+MuYuReader 是独立开源项目，不隶属于 Anthropic 或 Claude。项目只做本地文件阅读，不提供书源、不绕过 DRM、不处理版权内容分发；导入内容的版权责任由用户自行承担。
+
+## License
+
+MIT. See [LICENSE](LICENSE).

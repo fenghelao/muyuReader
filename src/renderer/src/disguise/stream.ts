@@ -8,7 +8,7 @@ function prefersReduced(): boolean {
 }
 
 /**
- * 渲染一个块级片段(action:灰色折叠工具摘要行,仿 Claude Code transcript)。
+ * Render one block-level transcript segment.
  * 默认折叠只占一行灰字;有 detail 时点击展开,细节里 +/- 行着色。
  */
 export function renderBlockEl(seg: BlockSegment): HTMLElement {

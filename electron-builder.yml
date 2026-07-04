@@ -1,4 +1,4 @@
-# 打包 = 神似而非全等(PROJECT_PLAN §9.2 / §12):显示名用 MuYuReader,bundleId 用自有域名规避商标
+# Public package metadata: use project-owned app names and bundle identifiers.
 appId: com.fenghelao.muyureader
 productName: MuYuReader
 directories:

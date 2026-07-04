@@ -4,7 +4,7 @@ import { parseTxt } from './txt'
 import { parseEpub } from './epub'
 import { parsePdf } from './pdf'
 
-// §13:错误一律以友好文案回传,渲染层伪装成 Claude 助手消息,绝不弹系统框
+// Return friendly parser errors to the renderer instead of opening native dialogs.
 export async function openAndParse(filePath: string): Promise<ParseResult> {
   const ext = extname(filePath).toLowerCase()
   try {

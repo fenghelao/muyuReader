@@ -325,7 +325,7 @@ export const useStore = create<State>((set, get) => ({
     saveProgress(s.activeBookHash, nextIndex)
   },
 
-  // M2:导入真书 → 切块 → 新建一个伪装会话(名字仍是 General coding session)并载入
+  // Import a parsed book, chunk it, and create/update the local library item.
   loadBook: (book) => {
     const blocks = chunkBook(book.chapters)
     const h = clampProgress(book.savedBlockIndex, blocks.length)
@@ -363,6 +363,6 @@ export const useStore = create<State>((set, get) => ({
     get().loadBook(res)
   },
 
-  // §13:解析失败 → 伪装成一条 Claude 助手消息,不弹系统框
+  // Parser failures are rendered inline instead of native system dialogs.
   showError: (text) => set({ messages: [...get().messages, { id: ++msgId, role: 'assistant', errorText: text }] })
 }))

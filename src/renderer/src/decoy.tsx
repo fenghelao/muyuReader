@@ -3,7 +3,7 @@ import './styles/tokens.css'
 import './styles/app.css'
 import DecoyScreen from './components/DecoyScreen'
 
-// 遮羞视图跟随系统亮暗
+// Placeholder view follows the system color scheme.
 document.documentElement.setAttribute(
   'data-theme',
   typeof matchMedia !== 'undefined' && matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'

@@ -22,7 +22,7 @@ export default function Composer() {
         <textarea
           ref={ref}
           rows={1}
-          placeholder="Message Claude…"
+          placeholder="Message Claude..."
           onKeyDown={(e) => {
             if (e.key === 'Enter' && !e.shiftKey) {
               e.preventDefault()

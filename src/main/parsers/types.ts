@@ -1,4 +1,4 @@
-// 解析器统一输出(纯 JSON,经 IPC 回传渲染层)—— PROJECT_PLAN §7.1
+// 解析器统一输出(纯 JSON,经 IPC 回传渲染层)
 export interface Chapter {
   index: number
   title: string

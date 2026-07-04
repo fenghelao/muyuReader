@@ -1,9 +1,28 @@
 {
   "name": "muyu-reader",
   "version": "0.1.0",
-  "description": "一个伪装成 Claude 桌面客户端的电子书阅读器(上班摸鱼用)。",
+  "description": "一个伪装成 Claude 桌面聊天界面的本地摸鱼电子书阅读器。",
   "author": "fenghelao",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fenghelao/muyuReader.git"
+  },
+  "bugs": {
+    "url": "https://github.com/fenghelao/muyuReader/issues"
+  },
+  "homepage": "https://github.com/fenghelao/muyuReader#readme",
+  "keywords": [
+    "moyu",
+    "ebook",
+    "reader",
+    "claude-style",
+    "disguise",
+    "electron",
+    "epub",
+    "pdf",
+    "txt"
+  ],
   "main": "./out/main/index.js",
   "scripts": {
     "dev": "electron-vite dev",

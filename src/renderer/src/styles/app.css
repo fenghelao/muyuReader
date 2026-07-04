@@ -115,10 +115,10 @@ body {
 .msg--assistant .body { font-family: var(--font-body); font-size: var(--reader-font); line-height: 1.65; color: var(--text-primary); }
 .msg--assistant .body p { margin: 0 0 16px; }
 .msg--assistant .body p:last-child { margin-bottom: 0; }
-/* 伪装段(英文讲解)= 无衬线 次级色,读者跳过 */
+/* Secondary transcript text. */
 .msg--assistant .body p.camo { font-family: var(--font-ui); color: var(--text-secondary); font-size: calc(var(--reader-font) - 1.5px); line-height: 1.6; }
 .msg--assistant .body pre.code { font-family: var(--font-mono); font-size: 13px; line-height: 1.55; background: var(--bg-code); border-radius: 8px; padding: 12px 14px; margin: 0 0 16px; overflow-x: auto; white-space: pre-wrap; color: var(--text-primary); }
-/* 伪装段(工具调用 / 文件编辑)= 仿 Claude 干活的 tool-use 块 */
+/* Transcript tool/edit block. */
 .msg--assistant .body .tool { font-family: var(--font-mono); font-size: 12.5px; line-height: 1.55; margin: 0 0 16px; color: var(--text-secondary); }
 .msg--assistant .body .tool .tline { display: flex; gap: 8px; align-items: baseline; }
 .msg--assistant .body .tool .dot { color: var(--accent-primary); }
@@ -130,7 +130,7 @@ body {
 .msg--assistant .body .diff .del { background: rgba(201, 100, 66, .14); color: #a24e30; }
 :root[data-theme="dark"] .msg--assistant .body .diff .add { background: rgba(120, 140, 93, .22); color: #a6ba85; }
 :root[data-theme="dark"] .msg--assistant .body .diff .del { background: rgba(201, 100, 66, .22); color: #e2996f; }
-/* 伪装:仿 Claude Code 的灰色折叠工具摘要行(默认一行灰字,点 › 展开;极易跳过,不挡阅读) */
+/* Collapsed transcript action row. */
 .msg--assistant .body .action { margin: 0 0 15px; font-family: var(--font-ui); }
 .msg--assistant .body .action-head { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--text-tertiary); user-select: none; }
 .msg--assistant .body .action-summary { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -178,7 +178,7 @@ body {
 .send .icon { stroke: #fff; stroke-width: 2; }
 .hint { max-width: 740px; margin: 8px auto 0; text-align: center; font-size: 11.5px; color: var(--text-tertiary); }
 
-/* ---- 老板键遮羞层(M1:页面内 decoy;M3 升级为独立 WebContentsView)---- */
+/* ---- Placeholder focus view ---- */
 .decoy { position: fixed; inset: 0; z-index: 40; background: var(--bg-canvas); display: none; }
 .decoy.show { display: flex; }
 .decoy .sidebar { background: var(--bg-sidebar); }
@@ -186,7 +186,7 @@ body {
 .decoy-hi { font-family: var(--font-body); font-size: 30px; color: var(--text-primary); margin-bottom: 26px; display: flex; align-items: center; gap: 12px; }
 .decoy-hi svg { width: 28px; height: 28px; color: var(--accent-primary); }
 .decoy .composer { width: 100%; }
-/* 独立遮羞视图(DecoyScreen)在 main 区居中 */
+/* Standalone placeholder view centers in the main area. */
 .decoy-center { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 0 24px; }
 .decoy-center .composer { width: 100%; }
 

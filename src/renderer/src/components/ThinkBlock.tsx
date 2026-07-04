@@ -2,7 +2,7 @@ import { useState } from 'react'
 import type { Thinking } from '../disguise/types'
 import { Chevron } from './icons'
 
-// 假思考折叠块(仿 Claude 的 "Thought for Ns" 推理摘要)
+// Collapsed thinking block for the transcript-style view.
 export default function ThinkBlock({ thinking }: { thinking: Thinking }) {
   // 默认折叠成一行 "Thought for Ns"(不挡阅读),点击可展开
   const [collapsed, setCollapsed] = useState(true)

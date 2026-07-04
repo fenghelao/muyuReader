@@ -41,8 +41,8 @@ export default function App() {
     document.documentElement.style.setProperty('--reader-font', readerFont + 'px')
   }, [readerFont])
 
-  // 老板键:Electron 里由主进程全局快捷键切 WebContentsView(§9.1),渲染层不处理;
-  // 纯浏览器(无 window.api)用 Esc + 页面内 decoy 兜底。
+  // Electron handles the global focus shortcut in the main process.
+  // Browser preview falls back to Esc + an in-page placeholder view.
   useEffect(() => {
     const isElectron = !!window.api
     const onKey = (e: KeyboardEvent): void => {

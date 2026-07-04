@@ -1,6 +1,6 @@
 import type { Block } from './types'
 
-// M1 演示内容(将来由真实解析器产出;此处内置一段原创武侠范文 + 伪装素材池)。
+// M1 demo content. Real books are produced by the parser pipeline.
 export const HISTORY = 3 // 首屏回填的历史块数
 
 export interface SampleBook {
@@ -8,7 +8,7 @@ export interface SampleBook {
   name: string
 }
 
-// 侧栏 Recents:导入默认名 = General coding session(伪装成编程会话)
+// Default local library item names.
 export const SAMPLE_BOOKS: SampleBook[] = [
   { id: 'b1', name: 'General coding session' },
   { id: 'b2', name: 'Debug WebSocket reconnect' },
@@ -80,7 +80,7 @@ export const THINK_POOL = [
   'Outlining the structure first, then filling in each piece.'
 ]
 
-// 伪装:仿 Claude Code transcript 的灰色折叠工具摘要行。
+// Compact transcript action row content.
 // summary = 折叠时显示的一行灰字;detail = 展开后的细节(可省略,省略则不可展开)。
 export interface ActionItem {
   summary: string

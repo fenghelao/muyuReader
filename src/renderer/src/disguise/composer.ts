@@ -27,7 +27,7 @@ function pickAction(i: number, j: number): Segment {
 
 /**
  * 把一块正文按当前排版模式编排成片段序列。
- * 混合模式:每段正文后跟一行灰色折叠工具摘要(仿 Claude Code,极易跳过,不挡阅读)。
+ * Mixed mode: each reading chunk can include a compact collapsed action row.
  */
 export function buildSegments(block: Block, i: number, mode: Mode): Segment[] {
   if (mode === 'regular') return block.paragraphs.map((t) => ({ kind: 'novel', text: t }))

@@ -2,7 +2,7 @@ import type { SVGProps } from 'react'
 
 type P = SVGProps<SVGSVGElement>
 
-// 品牌标(占位星标,非 Claude 真 logo —— 规避商标,正式版换近似风格图标)
+// Project mark placeholder.
 export function Sparkle(p: P) {
   return (
     <svg viewBox="0 0 24 24" fill="currentColor" stroke="none" {...p}>
